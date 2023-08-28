@@ -1,0 +1,76 @@
+(define (foldl op nv l)
+  (if (null? l) nv
+      (foldl op (op nv (car l)) (cdr l))))
+
+(define (foldr op nv l)
+  (if (null? l) nv
+      (op (car l) (foldr op nv (cdr l)))))
+
+;I начин
+(define (repeat-element lst)
+  (foldr (lambda (x y) (append (list x x) y)) '() lst))
+
+;II начин
+(define (repeat-element lst)
+  (foldl (lambda (r h) (append r (list h h))) '() lst))
+
+;III начин
+(define (repeat-element lst)
+  (apply append (map (lambda (i) (list i i)) lst)))
+
+;I начин
+(define (zip l1 l2)
+  (define (helper l1 l2 res)
+    (if (or (null? l1) (null? l2)) '()
+       (cons (append res (cons (car l1) (car l2))) (helper (cdr l1) (cdr l2) res))))
+  (helper l1 l2 '()))
+
+;II начин
+(define (zip l1 l2)
+  (map cons l1 l2))
+
+;III начин
+(define (zip lst1 lst2)
+  (if (or (null? lst1) (null? lst2)) '()
+        (cons (cons (car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))))) 
+
+;I начин
+(define (zip-multiple . lst)
+ (apply map list lst))
+
+(define (any? p? lst)
+  (foldr (lambda (x y) (or (p? x) y)) #f lst))
+
+;II начин
+(define (zip-multiple . ll)
+  (if (any? null? ll) '()
+      (cons (map car ll) (apply zip-multiple (map cdr ll)))))
+
+(define (my-filter p? l)
+  (cond ((null? l) '())
+        ((p? (car l)) (cons (car l) (my-filter p? (cdr l))))
+        (else (my-filter p? (cdr l)))))
+
+(define (selection-sort lst)
+  (if (null? lst)
+      '()
+      (cons (apply min lst) (selection-sort (my-filter (lambda (x) (not (equal? x (apply min lst)))) lst)))))
+
+(define (merge-sorted lst1 lst2 less-then?)
+    (cond ((null? lst1) lst2)
+          ((null? lst2) lst1)
+          ((<= (car lst1) (car lst2)) (cons (car lst1) (merge-sorted (cdr lst1) lst2 less-then?)))
+          (else (cons (car lst2) (merge-sorted lst1 (cdr lst2) less-then?)))))
+
+(define (merge-sort lst less-then?)
+  (if (null? lst)
+      '()
+      (merge-sorted (list (car lst)) (merge-sort (cdr lst) less-then?) less-then?)))
+
+(define (take n lst)
+  (if (= n 0) '()
+      (cons (car lst) (take (- n 1) (cdr lst)))))
+
+(define (drop n lst)
+  (if (= n 0) lst
+      (drop (- n 1) (cdr lst))))

@@ -1,0 +1,88 @@
+(define (count-digits x)
+  (if ( <= (abs x) 1)
+     1
+     (+ 1 (count-digits(quotient x 10)))))
+
+(define (sum-digits x)
+  (if (<= x 0)
+      0
+      (+ (remainder x 10) (sum-digits(quotient x 10)))
+   )
+)
+
+(define (pow x n)
+  (cond ((= n 0)1)
+        ((= n 1) x)
+        (else (* x (pow x (- n 1))))))
+
+(define (test-match x)
+  (cond ((<= x 10) "ten")
+        ((= x 10) "test")
+        (else "hi"))
+  )
+
+(define (fast-pow x n)
+  (define (sq x) (* x x))
+  (cond ((= n 0) 1)
+        ((odd? n) (* x (fast-pow x (- n 1))))
+        (else (sq (fast-pow x (quotient n 2)))))
+  )
+
+; n = 0 -> 0
+; n = 1 -> 1
+; n = 2 -> 1
+; n = 3 -> 2
+(define (fibonacci n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fibonacci (- n 1)) (fibonacci (- n 2))))
+   )
+)
+
+(define (fib n)
+  (if (<= n 1)
+      1
+      (+ (fibonacci (- n 1)) (fibonacci (- n 2)))
+   )
+)
+
+;fibonacci iterative
+(define (fib-iter n prev curr)
+  (cond ((= n 0) prev)
+        ((= n 1) curr)
+        (else (fib-iter (- n 1) curr (+ prev curr)))
+   )
+)
+
+;gcd
+(define (my-gcd a b)
+  (cond ((= a b) a)
+        ((> a b) (my-gcd (- a b) b))
+        (else (my-gcd a (- b a)))
+   )
+)
+
+; [a, b]
+(define (sum a b)
+  (define (sum-helper curr res)
+    (if (> curr b)
+        res
+        (sum-helper (+ curr 1) (+ res curr))))
+  (sum-helper a 0))
+
+;factorial iterative
+(define (fact-iter x acc)
+  (if (<= x 1)
+      acc
+      (fact-iter (- x 1) (* x acc))))
+
+; 1234
+; 4321
+(define (reverse-number x)
+  (define (reverse-helper curr acc)
+    (if (= curr 0)
+        acc
+        (reverse-helper (quotient curr 10) (+ (* acc 10) (remainder curr 10)))))
+  (reverse-helper x 0))
+
+(define (is-prime? x))
