@@ -1,0 +1,106 @@
+;Zadacha 1
+(define (num-len num)
+  (if (< num 10) 1
+      (+ 1 (num-len (quotient num 10)))))
+
+(define (sq x) (* x x))
+
+(define (automorphic? num)
+  (if (= num (remainder (sq num) (expt 10 (- (num-len (sq num)) 1)))) #t #f))
+
+;Zadacha 2
+(define (id x) x)
+(define (1+ x) (+ 1 x))
+
+(define (accumulate op nv a b term next)
+  (if (> a b) nv
+      (accumulate op (op nv (term a)) (next a) b term next)))
+
+(define (count-pairs-gcd-for-one num a b n)
+  (accumulate + 0 a b (lambda (i) (if (= (gcd num i) n) 1 0)) 1+))
+
+(define (count-pairs-gcd n a b)
+  (accumulate + 0 a b (lambda (i) (count-pairs-gcd-for-one i a b n)) 1+))
+
+;Zadacha 3
+(define (is-duplicate? x l)
+  (define (helper x l count)
+    (cond ((and (null? l) (< count 2)) #f)
+          ((>= count 2) #t)
+          ((= x (car l)) (helper x (cdr l) (+ 1 count)))
+          (else (helper x (cdr l) count))))
+  (helper x l 0))
+
+(define (find-min l)
+  (define (helper res l)
+    (cond ((null? l) res)
+          ((helper (min (car l) res) (cdr l)))))
+  (helper (car l) (cdr l)))
+
+(define (my-filter p? l)
+  (cond ((null? l) '())
+        ((p? (car l)) (cons (car l) (my-filter p? (cdr l))))
+        (else (my-filter p? (cdr l)))))
+
+(define (min-duplicate l)
+  ;(apply min (my-filter (lambda (i) (is-duplicate? i l)) l)))
+  (find-min (my-filter (lambda (i) (is-duplicate? i l)) l)))
+
+;Zadacha 4
+(define board1
+  '((5 3 4  6 7 8  9 1 2)
+    (6 7 2  1 9 5  3 4 8)
+    (1 9 8  3 4 2  5 6 7)
+
+    (8 5 9  7 6 1  4 2 3)
+    (4 2 6  8 5 3  7 9 1)
+    (7 1 3  9 2 4  8 5 6)
+
+    (9 6 1  5 3 7  2 8 4)
+    (2 8 7  4 1 9  6 3 5)
+    (3 4 5  2 8 6  1 7 9)))
+
+(define (foldr op nv l)
+  (if (null? l) nv
+      (op (car l) (foldr op nv (cdr l)))))
+
+(define (row-correct? alphabet row)
+    (cond ((null? alphabet) #t)
+          ((not (member (car alphabet) row)) #f)
+          (else (row-correct? (cdr alphabet) row))))
+
+(define (all-rows-correct? alphabet board)
+  (foldr (lambda (h r) (and (row-correct? alphabet h) r)) #t board))
+
+(define (col-correct? alphabet col)
+  (row-correct? alphabet col))
+
+(define (transpose m)
+  (if (null? (car m)) '() 
+      (cons (map car m) (transpose (map cdr m))))) 
+
+(define (all-cols-correct? alphabet board)
+  (foldr (lambda (h r) (and (col-correct? alphabet h) r)) #t (transpose board)))
+
+(define (take-first-three lst)
+  (if (null? lst) '()
+      (list (car lst) (cadr lst) (caddr lst))))
+
+(define (take-subboard board)
+  (apply append (map take-first-three board)))
+
+(define (subboard-correct? alphabet subboard)
+  (row-correct? alphabet subboard))
+
+(define (all-subboards-correct? alphabet board)
+  (define (helper alphabet curr rows)
+    (cond ((null? curr) #t)
+          ((null? (car rows)) (helper alphabet (cdddr curr) (take-first-three (cdddr curr))))
+          ((not (subboard-correct? alphabet (take-subboard rows))) #f)
+          (else (helper alphabet curr (map cdddr rows)))))
+  (helper alphabet board (take-first-three board)))
+
+(define (sudoku-solved? alphabet board)
+ (and (all-rows-correct? alphabet board)
+      (all-cols-correct? alphabet board)
+      (all-subboards-correct? alphabet board)))
